@@ -600,8 +600,10 @@ local Success, Error = pcall(function()
 
 	local function WaitForTable(Root, InstancePath, Timeout)
 		local Instance = Root
+		local actualTimeout = Timeout or 5
 		for i, v in pairs(InstancePath) do
-			Instance = Instance:WaitForChild(v, Timeout)
+			if not Instance then break end
+			Instance = Instance:WaitForChild(v, actualTimeout)
 		end
 		return Instance
 	end
@@ -662,58 +664,84 @@ local Success, Error = pcall(function()
 		CheckSafeRange = 50,
 	}
 
-	local Remotes = {
-		ReelFinished = ReplicatedStorage.events:WaitForChild"reelfinished ",
-		SellAll = ReplicatedStorage.events:WaitForChild"SellAll",
-		Power = EnsureStream(
-			workspace,
-			{
-			"world",
-			"npcs",
-			"Merlin",
-			"Merlin",
-			"power"
-		},
-			Vector3.new(-930, 226, -993),
-			5
-		),
-		Luck = EnsureStream(
-			workspace,
-			{
-			"world",
-			"npcs",
-			"Merlin",
-			"Merlin",
-			"luck"
-		},
-			Vector3.new(-930, 226, -993),
-			5
-		),
-	}
+	local Remotes = {}
+	do
+		local reelFinishedEvent = ReplicatedStorage.events:WaitForChild("reelfinished", 5) or ReplicatedStorage.events:WaitForChild("reelfinished ", 5)
+		if not reelFinishedEvent then
+			warn("[NoxHub Warning] reelfinished event not found! Auto-reel features will be disabled.")
+			reelFinishedEvent = {
+				FireServer = function() dbgwarn("reelfinished remote not found, cannot FireServer") end
+			}
+		end
+		Remotes.ReelFinished = reelFinishedEvent
 
+		local sellAllEvent = ReplicatedStorage.events:WaitForChild("SellAll", 5)
+		if not sellAllEvent then
+			warn("[NoxHub Warning] SellAll event not found! Auto-sell features will be disabled.")
+			sellAllEvent = {
+				InvokeServer = function() dbgwarn("SellAll remote not found, cannot InvokeServer") end
+			}
+		end
+		Remotes.SellAll = sellAllEvent
+
+		Remotes.Power = EnsureStream(
+			workspace,
+			{
+				"world",
+				"npcs",
+				"Merlin",
+				"Merlin",
+				"power"
+			},
+			Vector3.new(-930, 226, -993),
+			5
+		)
+
+		Remotes.Luck = EnsureStream(
+			workspace,
+			{
+				"world",
+				"npcs",
+				"Merlin",
+				"Merlin",
+				"luck"
+			},
+			Vector3.new(-930, 226, -993),
+			5
+		)
+	end
+
+	local PlayerDataFolder = workspace:WaitForChild("PlayerStats", 5) 
+		and workspace.PlayerStats:WaitForChild(LocalPlayer.Name, 5) 
+		and workspace.PlayerStats[LocalPlayer.Name]:WaitForChild("T", 5)
+	
 	local Interface = {
-		FishRadar = ReplicatedStorage.resources.items.items["Fish Radar"]["Fish Radar"],
+		FishRadar = ReplicatedStorage:WaitForChild("resources", 5) 
+			and ReplicatedStorage.resources:WaitForChild("items", 5) 
+			and ReplicatedStorage.resources.items:WaitForChild("items", 5) 
+			and ReplicatedStorage.resources.items.items:WaitForChild("Fish Radar", 5) 
+			and ReplicatedStorage.resources.items.items["Fish Radar"]:WaitForChild("Fish Radar", 5),
 		TeleportSpots = WaitForTable(workspace, {
 			"world",
 			"spawns",
 			"TpSpots"
-		}),
+		}, 5),
 		Inventory = WaitForTable(LocalPlayer.PlayerGui, {
 			"hud",
 			"safezone",
 			"backpack"
-		}),
-		MeteorItems = workspace:WaitForChild"active":WaitForChild"meteorItems",
-		PlayerData = workspace:WaitForChild"PlayerStats":WaitForChild(LocalPlayer.Name):WaitForChild"T":GetChildren()[1],
-		NPCs = workspace:WaitForChild"world":WaitForChild"npcs",
+		}, 5),
+		MeteorItems = workspace:WaitForChild("active", 5) and workspace.active:WaitForChild("meteorItems", 5),
+		PlayerData = PlayerDataFolder and PlayerDataFolder:GetChildren()[1],
+		NPCs = workspace:WaitForChild("world", 5) and workspace.world:WaitForChild("npcs", 5),
 		BoatModels = WaitForTable(ReplicatedStorage, {
 			"resources",
 			"replicated",
 			"instances",
 			"vessels"
-		}),
-		Active = workspace:WaitForChild"active",
-		ActiveBoats = workspace:WaitForChild"active":WaitForChild"boats",
+		}, 5),
+		Active = workspace:WaitForChild("active", 5),
+		ActiveBoats = workspace:WaitForChild("active", 5) and workspace.active:WaitForChild("boats", 5),
 	}
 
 	local Collection = {}
