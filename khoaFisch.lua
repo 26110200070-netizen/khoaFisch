@@ -722,7 +722,16 @@ local Success, Error = pcall(function()
 		table.insert(Collection, Item)
 	end
 
-	local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+	local WindUI
+	local success, err = pcall(function()
+		return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+	end)
+	if success and err then
+		WindUI = err
+	else
+		warn("WindUI Load Error: " .. tostring(err))
+		error("Failed to load WindUI library.")
+	end
 	local VelocityFly =
 		loadstring(game:HttpGet"https://raw.githubusercontent.com/centerepic/VelocityFly/main/VelocityFly.lua")()
 
@@ -730,6 +739,8 @@ local Success, Error = pcall(function()
 		Options = {},
 		Toggles = {},
 	}
+	getgenv().Options = UI.Options
+	getgenv().Toggles = UI.Toggles
 
 	local function CreateToggle(parentSection, flag, config)
 		local originalCallback = config.Callback
@@ -3088,3 +3099,7 @@ and Values.bite.Value == true
 	PreAutoloadConfig = false
 
 end)
+
+if not Success then
+	warn("NoxHub Load Error: " .. tostring(Error))
+end
