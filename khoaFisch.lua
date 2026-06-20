@@ -3,7 +3,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-	Title = "Naoki Hub",
+	Title = "Khoa Dev - Fisch 2.5.1",
 	SubTitle = "discord.gg/25ms",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(550, 350),
@@ -56,7 +56,7 @@ end
 
 function Notify(Des, Time, title)
 	Fluent:Notify({
-		Title= title or "Normal Hub Notify",
+		Title= title or "Thông Báo Khoa Dev",
 		Content = Des,
 		Duration = Time or 3
 	})
@@ -79,8 +79,14 @@ _G['Normal Hub Table'] = {
 
 _G['Normal Hub Table'].SizeUi = (not _G['Normal Hub Table'].isWindows and UDim2.fromOffset(600,300)) or UDim2.fromOffset(560,600)
 if not _G['Normal Hub Table'].isWindows then
-	if game.CoreGui:FindFirstChild('UIBUTTON') then
-		game.CoreGui:FindFirstChild('UIBUTTON'):Destroy()
+	local coreGui = game:GetService("CoreGui")
+	local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+	
+	if coreGui and coreGui:FindFirstChild('UIBUTTON') then
+		coreGui:FindFirstChild('UIBUTTON'):Destroy()
+	end
+	if playerGui and playerGui:FindFirstChild('UIBUTTON') then
+		playerGui:FindFirstChild('UIBUTTON'):Destroy()
 	end
 
 	local TweenService = game:GetService("TweenService")
@@ -92,59 +98,63 @@ if not _G['Normal Hub Table'].isWindows then
 	local UICorner_2 = Instance.new("UICorner")
 
 	UIBUTTON.Name = "UIBUTTON"
-	UIBUTTON.Parent = game.CoreGui
+	
+	local parentSuccess, _ = pcall(function()
+		UIBUTTON.Parent = game:GetService("CoreGui")
+	end)
+	if not parentSuccess or UIBUTTON.Parent == nil then
+		UIBUTTON.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+	end
+	
 	UIBUTTON.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	Frame.Parent = UIBUTTON
 	Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	Frame.BorderSizePixel = 0
-	Frame.Transparency = 1
+	Frame.BackgroundTransparency = 1
 	Frame.Position = UDim2.new(0.157012194, 0, 0.164366379, 0)
 	Frame.Size = UDim2.new(0, 115, 0, 49)
 
-ImageButton.Parent = Frame
-ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-ImageButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton.BorderSizePixel = 0
-ImageButton.Active = true
-ImageButton.Draggable = true
-ImageButton.Position = UDim2.new(0.218742043, 0, -0.155235752, 0)
-ImageButton.Size = UDim2.new(0, 64, 0, 64)
+	ImageButton.Parent = Frame
+	ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ImageButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	ImageButton.BorderSizePixel = 0
+	ImageButton.Active = true
+	ImageButton.Draggable = true
+	ImageButton.Position = UDim2.new(0.218742043, 0, -0.155235752, 0)
+	ImageButton.Size = UDim2.new(0, 64, 0, 64)
 
--- Set initial image to "open"
-ImageButton.Image = "rbxassetid://965305329" -- Open image asset ID
-local isOpen = true -- Variable to track the state
+	-- Set initial image to "open"
+	ImageButton.Image = "rbxassetid://965305329" -- Open image asset ID
+	local isOpen = true -- Variable to track the state
 
-ImageButton.MouseButton1Click:Connect(function()
-    -- Animate the button size
-    ImageButton:TweenSize(UDim2.new(0, 60, 0, 60), Enum.EasingDirection.In, Enum.EasingStyle.Elastic, 0.1)
-    delay(0.1, function()
-        ImageButton:TweenSize(UDim2.new(0, 64, 0, 64), Enum.EasingDirection.Out, Enum.EasingStyle.Elastic, 0.1)
-    end)
+	ImageButton.MouseButton1Click:Connect(function()
+		-- Animate the button size
+		ImageButton:TweenSize(UDim2.new(0, 60, 0, 60), Enum.EasingDirection.In, Enum.EasingStyle.Elastic, 0.1)
+		delay(0.1, function()
+			ImageButton:TweenSize(UDim2.new(0, 64, 0, 64), Enum.EasingDirection.Out, Enum.EasingStyle.Elastic, 0.1)
+		end)
 
-    -- Toggle the image based on the state
-    if isOpen then
-        ImageButton.Image = "rbxassetid://965305329" -- Replace with close image asset ID
-    else
-        ImageButton.Image = "rbxassetid://965305329" -- Open image asset ID
-    end
-    isOpen = not isOpen -- Toggle the state
+		-- Toggle the image based on the state
+		if isOpen then
+			ImageButton.Image = "rbxassetid://965305329" -- Replace with close image asset ID
+		else
+			ImageButton.Image = "rbxassetid://965305329" -- Open image asset ID
+		end
+		isOpen = not isOpen -- Toggle the state
 
-    -- Simulate key presses
-    local VirtualInputManager = game:GetService("VirtualInputManager")
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
-    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
-end)
+		-- Direct toggle of the window
+		if Window then
+			Window:Minimize()
+		end
+	end)
 
-UICorner.CornerRadius = UDim.new(0, 100)
-UICorner.Parent = ImageButton
+	UICorner.CornerRadius = UDim.new(0, 100)
+	UICorner.Parent = ImageButton
 
 	UICorner_2.CornerRadius = UDim.new(0, 10)
 	UICorner_2.Parent = Frame
-
 
 	local UIS = game:GetService('UserInputService')
 	local frame = Frame
@@ -176,10 +186,10 @@ UICorner.Parent = ImageButton
 	UIS.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			if dragToggle then
-				Frame.Transparency = 1
+				Frame.BackgroundTransparency = 1
 				updateInput(input)
 			else
-				Frame.Transparency = 1
+				Frame.BackgroundTransparency = 1
 			end
 		end
 	end)
@@ -3049,13 +3059,13 @@ do -- INFO FISH
 end
 
 local Tap = {
-	General = Window:AddTab({Title = "Generals", Icon = "box"}),
-	Event = Window:AddTab({Title = "Event", Icon = "star"}),
-	Player = Window:AddTab({ Title = "Player", Icon = "user"}),
-	Shop = Window:AddTab({ Title = "Shopee", Icon = "shopping-bag"}),
-	Configs = Window:AddTab({Title = "Configs", Icon = "diamond"}),
-	Teleport = Window:AddTab({Title = "Teleport", Icon = "asterisk"}),
-	Settings = Window:AddTab({Title = "Settings", Icon = "settings"})
+	General = Window:AddTab({Title = "Chung", Icon = "box"}),
+	Event = Window:AddTab({Title = "Sự Kiện", Icon = "star"}),
+	Player = Window:AddTab({ Title = "Người Chơi", Icon = "user"}),
+	Shop = Window:AddTab({ Title = "Cửa Hàng", Icon = "shopping-bag"}),
+	Configs = Window:AddTab({Title = "Cấu Hình", Icon = "diamond"}),
+	Teleport = Window:AddTab({Title = "Dịch Chuyển", Icon = "asterisk"}),
+	Settings = Window:AddTab({Title = "Cài Đặt", Icon = "settings"})
 }
 
 Toggle = function(Section, NameIndex, Description, ConfigName, Function, ...)
@@ -3190,7 +3200,7 @@ AllFuncs['Farm Fish'] = function()
 				XyzClone.Text = "<font color='#ff4949'>Lure </font>: "..tostring(ExportValue(tostring(LocalPlayer.Character:FindFirstChild(RodName).values.lure.Value), 2)).."%"
 				RunService.Heartbeat:Wait()
 			until not LocalPlayer.Character:FindFirstChild(RodName) or LocalPlayer.Character:FindFirstChild(RodName).values.bite.Value or not Config['Farm Fish']
-			XyzClone.Text = "<font color='#ff4949'>FISHING!</font>"
+			XyzClone.Text = "<font color='#ff4949'>ĐANG CÂU!</font>"
 			delay(1.5, function()
 				XyzClone:Destroy()
 			end)
@@ -3216,7 +3226,7 @@ end
 AllFuncs['To Pos Stand'] = function()
 	while Config['To Pos Stand'] and task.wait() do
 		if not Config['SelectPositionStand'] then
-			Notify("Pls Select Position")
+			Notify("Vui lòng chọn vị trí trước")
 			Config['To Pos Stand'] = false
 			return
 		end
@@ -3365,10 +3375,10 @@ AllFuncs['Sending Webhook'] = function()
 			local AllFishInventory = ""
 			local BuySuccess = "**"
 			if Config['Current Level'] then
-				LevelDes = "\nNow Level : "..comma_value(LocalPlayer.leaderstats.Level.Value)
+				LevelDes = "\nCấp độ hiện tại : "..comma_value(LocalPlayer.leaderstats.Level.Value)
 			end
 			if Config['Current Money'] then
-				MoneyDes = "\nNow Money : "..tostring(LocalPlayer.PlayerGui.hud.safezone.coins.Text)
+				MoneyDes = "\nTiền hiện tại : "..tostring(LocalPlayer.PlayerGui.hud.safezone.coins.Text)
 			end
 			if Config['All Fish Inventory'] then
 				AllFishInventory = "```"
@@ -3389,24 +3399,24 @@ AllFuncs['Sending Webhook'] = function()
 				["embeds"] = {
 					{
 						["id"]= 661605297,
-						["title"]= "Fisch Notify",
-						["description"] = "** Player : "..LocalPlayer.Name.."\n "..MoneyDes..""..LevelDes..""..AllFishInventory.."**",
+						["title"]= "Thông Báo Fisch",
+						["description"] = "** Người chơi : "..LocalPlayer.Name.."\n "..MoneyDes..""..LevelDes..""..AllFishInventory.."**",
 						["color"]= 8646911,
 						["fields"]= {},
 						["thumbnail"]= {
 							["url"]= GetPlayerProfile()
 						},
 						["footer"]= {
-							["text"]  = "Normal Hub Notify",
+							["text"]  = "Thông Báo Khoa Dev",
 							["icon_url"] = "https://cdn.discordapp.com/attachments/971367335405449246/1259442279672844308/Profile_1.png?ex=66fbc206&is=66fa7086&hm=0b8898eb98938e100ad3cede12d0a526d344cd3ba7d4f737f728ca188a1af027&"
 						}
 					}
 				}
 			})
 			if SendingSuccess then
-				Notify("Sending WebHook Success")
+				Notify("Gửi Webhook Thành Công")
 			else
-				Notify("Failed Sending WebHook!")
+				Notify("Gửi Webhook Thất Bại!")
 			end
 		end
 	end
@@ -3426,40 +3436,40 @@ workspace.active.ChildAdded:Connect(function(child)
 				["embeds"] = {
 					{
 						["id"]= 661605297,
-						["title"]= "Fisch Notify",
-						["description"] = "** Player : "..LocalPlayer.Name.."\n Found Safe Whirlpool\n Position : "..StringInput.."**",
+						["title"]= "Thông Báo Fisch",
+						["description"] = "** Người chơi : "..LocalPlayer.Name.."\n Tìm thấy Vòng Xoáy An Toàn\n Tọa độ : "..StringInput.."**",
 						["color"]= 8646911,
 						["fields"]= {},
 						["thumbnail"]= {
 							["url"]= GetPlayerProfile()
 						},
 						["footer"]= {
-							["text"]  = "Normal Hub Notify",
+							["text"]  = "Thông Báo Khoa Dev",
 							["icon_url"] = "https://cdn.discordapp.com/attachments/971367335405449246/1259442279672844308/Profile_1.png?ex=66fbc206&is=66fa7086&hm=0b8898eb98938e100ad3cede12d0a526d344cd3ba7d4f737f728ca188a1af027&"
 						}
 					}
 				}
 			})
 			if SendingSuccess then
-				Notify("Sending WebHook Success")
+				Notify("Gửi Webhook Thành Công")
 			else
-				Notify("Failed Sending WebHook!")
+				Notify("Gửi Webhook Thất Bại!")
 			end
 		end
 	end
 end)
 
-Main = Tap.General:AddSection('General') do
+Main = Tap.General:AddSection('Chung') do
     SelectPosition = Main:AddParagraph({        
-        Title = "Position : N/A"
+        Title = "Tọa độ : N/A"
     })
-    Toggle(Main, "Auto Farm Fish", "", "Farm Fish")
-    Toggle(Main, "Teleport To Select Position", "", "To Pos Stand")
+    Toggle(Main, "Tự Động Câu Cá", "", "Farm Fish")
+    Toggle(Main, "Dịch Chuyển Đến Vị Trí Đã Chọn", "", "To Pos Stand")
     Main:AddButton({
-        Title = "Select Position",
+        Title = "Chọn Vị Trí",
         Callback = function()
             Config['SelectPositionStand'] = LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
-            SelectPosition:SetTitle("Position : " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X)) .. " X " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y)) .. " Y " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z)) .. " Z")
+            SelectPosition:SetTitle("Tọa độ : " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.X)) .. " X " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Y)) .. " Y " .. tostring(math.floor(LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position.Z)) .. " Z")
         end
     })
 end
@@ -3574,24 +3584,24 @@ AllFuncs['Auto Find Boat Event'] = function()
 					["embeds"] = {
 						{
 							["id"]= 661605297,
-							["title"]= "Fisch Notify",
-							["description"] = "** Player : "..LocalPlayer.Name.."\n Trade Witches Ingredient Success **",
+							["title"]= "Thông Báo Fisch",
+							["description"] = "** Người chơi : "..LocalPlayer.Name.."\n Đổi Nguyên Liệu Phù Thủy Thành Công **",
 							["color"]= 8646911,
 							["fields"]= {},
 							["thumbnail"]= {
 								["url"]= GetPlayerProfile()
 							},
 							["footer"]= {
-								["text"]  = "Normal Hub Notify",
+								["text"]  = "Thông Báo Khoa Dev",
 								["icon_url"] = "https://cdn.discordapp.com/attachments/971367335405449246/1259442279672844308/Profile_1.png?ex=66fbc206&is=66fa7086&hm=0b8898eb98938e100ad3cede12d0a526d344cd3ba7d4f737f728ca188a1af027&"
 							}
 						}
 					}
 				})
 				if SendingSuccess then
-					Notify("Sending WebHook Success")
+					Notify("Gửi Webhook Thành Công")
 				else
-					Notify("Failed Sending WebHook!")
+					Notify("Gửi Webhook Thất Bại!")
 				end
 			end
 		end
@@ -3603,16 +3613,16 @@ AllFuncs['Auto Find Boat Event'] = function()
 		end
 	end
 end
-Event = Tap.Event:AddSection('Event') do
-	IngredientDropdwon = Dropdown(Event, "Select Ingredient", "", IngredientList, false, "Ingredient Select")
-	Toggle(Event, "Auto Halloween Event ","", "Auto Find Boat Event")
-	Toggle(Event, "Back To Auto Fishing","", "Back To Fishing")
-	Toggle(Event, "Hop Server","Hop Server For Not Found Ingredient", "Hop Not Found Ingredient")
+Event = Tap.Event:AddSection('Sự Kiện') do
+	IngredientDropdwon = Dropdown(Event, "Chọn Nguyên Liệu", "", IngredientList, false, "Ingredient Select")
+	Toggle(Event, "Tự Động Sự Kiện Halloween", "", "Auto Find Boat Event")
+	Toggle(Event, "Quay Lại Tự Động Câu Cá", "", "Back To Fishing")
+	Toggle(Event, "Chuyển Server", "Tự động chuyển server khi không tìm thấy nguyên liệu", "Hop Not Found Ingredient")
 	Event:AddButton({
-		Title = "Teleport To Ingredient",
+		Title = "Dịch Chuyển Đến Nguyên Liệu",
 		Callback = function()
 			if Config['Ingredient Select'] == "" then
-				Notify("Pls Select Ingredient ")
+				Notify("Vui lòng chọn nguyên liệu trước")
 				return
 			end
 			for i,v in pairs(workspace.active:GetChildren()) do
@@ -3625,35 +3635,35 @@ Event = Tap.Event:AddSection('Event') do
 					LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v:GetPivot()
 				end
 			end
-			Notify("Not Found `"..Config["Ingredient Select"].."` ")
+			Notify("Không tìm thấy nguyên liệu `"..Config["Ingredient Select"].."`")
 		end
 	})
 	
 	Event:AddButton({
-		Title = "Refresh Ingredient",
+		Title = "Làm Mới Danh Sách Nguyên Liệu",
 		Callback = function()
 			IngredientDropdwon:SetValues(IngredientList)
 		end
 	})
 end
 
-Seller = Tap.General:AddSection('Seller') do
-	Toggle(Seller, "Auto Sell Fish","", "Sell Fish")
+Seller = Tap.General:AddSection('Bán Cá') do
+	Toggle(Seller, "Tự Động Bán Cá", "", "Sell Fish")
 
 	Seller:AddButton({
-		Title = "Sell All Fish",
+		Title = "Bán Tất Cả Cá",
 		Callback = function()
 			ReplicatedStorage:WaitForChild("events"):WaitForChild("selleverything"):InvokeServer()
 		end
 	})
 	Seller:AddButton({
-		Title = "Sell Fish ( In Hand )",
+		Title = "Bán Cá (Trên Tay)",
 		Callback = function()
 			workspace.world.npcs:FindFirstChild("Marc Merchant").merchant.sell:InvokeServer()
 		end
 	})
 	Seller:AddButton({
-		Title = "Show Ui Buy Boat",
+		Title = "Hiện UI Mua Thuyền",
 		Callback = function()
 			PlayerGui.hud.safezone.shipwright.Visible = not PlayerGui.hud.safezone.shipwright.Visible 
 		end
@@ -3665,71 +3675,71 @@ for i,v in pairs(FISHDATA) do
 	table.insert(FishList, i)
 end
 
-InfoFish = Tap.General:AddSection('Info Fish') do
+InfoFish = Tap.General:AddSection('Thông Tin Cá') do
 	InfoPrice = InfoFish:AddParagraph({        
-		Title = "Pice : N/A"
+		Title = "Giá : N/A"
 	})
 	InfoRarity = InfoFish:AddParagraph({        
-		Title = "Rarity : N/A"
+		Title = "Độ hiếm : N/A"
 	})
 	InfoChance = InfoFish:AddParagraph({        
-		Title = "Chance : N/A"
+		Title = "Tỷ lệ : N/A"
 	})
 	InfoFavouriteBait = InfoFish:AddParagraph({        
-		Title = "FavouriteBait : N/A"
+		Title = "Mồi ưa thích : N/A"
 	})
 	
-	Dropdown(InfoFish, "Select Fish", "", FishList, false, "Select Fish Info")
+	Dropdown(InfoFish, "Chọn Loại Cá", "", FishList, false, "Select Fish Info")
 	InfoFish:AddButton({
-		Title = "Get Info Fish In Hand",
+		Title = "Xem Thông Tin Cá Trên Tay",
 		Callback = function()
 			for i,v in pairs(LocalPlayer.Character:GetChildren()) do
 				if table.find(FishList, v.Name) then
 					Config['Select Fish Info'] = v.Name
-					InfoPrice:SetTitle("Price : "..FISHDATA[Config['Select Fish Info']].Price)
-					InfoRarity:SetTitle("Rarity : "..FISHDATA[Config['Select Fish Info']].Rarity)
-					InfoChance:SetTitle("Chance : "..FISHDATA[Config['Select Fish Info']].Chance.." %")
-					InfoFavouriteBait:SetTitle("FavouriteBait : "..FISHDATA[Config['Select Fish Info']].FavouriteBait)
+					InfoPrice:SetTitle("Giá : "..FISHDATA[Config['Select Fish Info']].Price)
+					InfoRarity:SetTitle("Độ hiếm : "..FISHDATA[Config['Select Fish Info']].Rarity)
+					InfoChance:SetTitle("Tỷ lệ : "..FISHDATA[Config['Select Fish Info']].Chance.." %")
+					InfoFavouriteBait:SetTitle("Mồi ưa thích : "..FISHDATA[Config['Select Fish Info']].FavouriteBait)
 					return
 				end
 			end
-			Notify("Pls Equip Fish")
+			Notify("Vui lòng cầm cá trên tay")
 		end
 	})
 	InfoFish:AddButton({
-		Title = "Get Info Fish",
+		Title = "Xem Thông Tin Cá",
 		Callback = function()
 			if Config['Select Fish Info'] == "" then
-				Notify("Pls Select Fish")
+				Notify("Vui lòng chọn cá")
 				return
 			end
-			InfoPrice:SetTitle("Price : "..FISHDATA[Config['Select Fish Info']].Price)
-			InfoRarity:SetTitle("Rarity : "..FISHDATA[Config['Select Fish Info']].Rarity)
-			InfoChance:SetTitle("Chance : "..FISHDATA[Config['Select Fish Info']].Chance.." %")
-			InfoFavouriteBait:SetTitle("FavouriteBait : "..FISHDATA[Config['Select Fish Info']].FavouriteBait)
+			InfoPrice:SetTitle("Giá : "..FISHDATA[Config['Select Fish Info']].Price)
+			InfoRarity:SetTitle("Độ hiếm : "..FISHDATA[Config['Select Fish Info']].Rarity)
+			InfoChance:SetTitle("Tỷ lệ : "..FISHDATA[Config['Select Fish Info']].Chance.." %")
+			InfoFavouriteBait:SetTitle("Mồi ưa thích : "..FISHDATA[Config['Select Fish Info']].FavouriteBait)
 		end
 	})
 end
 
 
-Modify = Tap.Player:AddSection('Player Modify') do
-	Slider(Modify, "Walk Speed", 10, 300, false, "Set Walk Speed")
-	Slider(Modify, "Jump Power", 25, 300, false, "Set Jump Power")
-	Toggle(Modify, "Walk Speed", "", "Toggle Walk Speed")
-	Toggle(Modify, "Jump Power", "", "Toggle Jump Power")
+Modify = Tap.Player:AddSection('Chỉnh Sửa Người Chơi') do
+	Slider(Modify, "Tốc Độ Chạy", 10, 300, false, "Set Walk Speed")
+	Slider(Modify, "Sức Nhảy", 25, 300, false, "Set Jump Power")
+	Toggle(Modify, "Bật Tốc Độ Chạy", "", "Toggle Walk Speed")
+	Toggle(Modify, "Bật Sức Nhảy", "", "Toggle Jump Power")
 end
 
-MiscPlayer = Tap.Player:AddSection('Misc Player') do
+MiscPlayer = Tap.Player:AddSection('Tính Năng Khác') do
 	DayOnlyLoop = nil
 	BypassGpsLoop = nil
-	Toggle(MiscPlayer, "Bypass Radar", "", "Bypass Radar", function(Value)
+	Toggle(MiscPlayer, "Bẻ Khóa Radar", "", "Bypass Radar", function(Value)
 		for _, v in pairs(game:GetService("CollectionService"):GetTagged("radarTag")) do
 			if v:IsA("BillboardGui") or v:IsA("SurfaceGui") then
 				v.Enabled = Value
 			end
 		end
 	end)
-	Toggle(MiscPlayer, "Bypass Gps", "", "Bypass Gps", function(Value)
+	Toggle(MiscPlayer, "Bẻ Khóa GPS", "", "Bypass Gps", function(Value)
 		if Value then
 			local XyzClone = game:GetService("ReplicatedStorage").resources.items.items.GPS.GPS.gpsMain.xyz:Clone()
 			XyzClone.Parent = game.Players.LocalPlayer.PlayerGui:WaitForChild("hud"):WaitForChild("safezone"):WaitForChild("backpack")
@@ -3752,7 +3762,7 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 			end
 		end
 	end)
-	Toggle(MiscPlayer, "Bypass Sell All ( Gane Pass )", "", "Bypass Sell all", function(Value)
+	Toggle(MiscPlayer, "Bẻ Khóa Bán Tất Cả (Gamepass)", "", "Bypass Sell all", function(Value)
 		if Value then
 			PlayerGui.hud.safezone.backpack.inventory.Sell.sellall.Disabled = true
 			PlayerGui.hud.safezone.backpack.inventory.Sell.MouseButton1Click:Connect(function()
@@ -3764,10 +3774,10 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 			PlayerGui.hud.safezone.backpack.inventory.Sell.sellall.Disabled = false
 		end
 	end)
-	Toggle(MiscPlayer, "Infinite Oxygen", "", "Infinite Oxygen", function(Value)
+	Toggle(MiscPlayer, "Vô Hạn Oxy", "", "Infinite Oxygen", function(Value)
 		LocalPlayer.Character.client.oxygen.Disabled = Value
 	end)
-	Toggle(MiscPlayer, "Weather Clear", "", "Weather Clear", function(Value)
+	Toggle(MiscPlayer, "Thời Tiết Trong Lành", "", "Weather Clear", function(Value)
 		local OldWEA = ReplicatedStorage.world.weather.Value
 		if Value then
 			ReplicatedStorage.world.weather.Value = 'Clear' 
@@ -3775,15 +3785,15 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 			ReplicatedStorage.world.weather.Value = OldWEA
 		end
 	end)
-	Toggle(MiscPlayer, "Noclip", "", "Toggle Noclip")
-	Toggle(MiscPlayer, "Walk On Water", "", "Toggle Walk On Water", function(Value)
+	Toggle(MiscPlayer, "Noclip (Đi Xuyên Tường)", "", "Toggle Noclip")
+	Toggle(MiscPlayer, "Đi Trên Nước", "", "Toggle Walk On Water", function(Value)
 		for i,v in pairs(workspace.zones.fishing:GetChildren()) do
 			if v.Name == "Ocean" then
 				v.CanCollide = Value
 			end
 		end
 	end)
-	Toggle(MiscPlayer, "Remove Fog", "", "Remove Fog", function(Value)
+	Toggle(MiscPlayer, "Xóa Sương Mù", "", "Remove Fog", function(Value)
 		if Value then
 			if game:GetService("Lighting"):FindFirstChild("Sky") then
 				game:GetService("Lighting"):FindFirstChild("Sky").Parent = game:GetService("Lighting").bloom
@@ -3794,7 +3804,7 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 			end
 		end
 	end)
-	Toggle(MiscPlayer, "Day Only", "", "Day Only", function(Value)
+	Toggle(MiscPlayer, "Luôn Là Ban Ngày", "", "Day Only", function(Value)
 		if Value then
 			DayOnlyLoop = RunService.Heartbeat:Connect(function()
 				game:GetService("Lighting").TimeOfDay = "12:00:00"
@@ -3806,7 +3816,7 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 			end
 		end
 	end)
-	Toggle(MiscPlayer, "Night Only", "", "Night Only", function(Value)
+	Toggle(MiscPlayer, "Luôn Là Ban Đêm", "", "Night Only", function(Value)
 		if Value then
 			DayOnlyLoop = RunService.Heartbeat:Connect(function()
 				game:GetService("Lighting").TimeOfDay = "22:00:00"
@@ -3819,63 +3829,63 @@ MiscPlayer = Tap.Player:AddSection('Misc Player') do
 		end
 	end)	
 	MiscPlayer:AddButton({
-		Title = "Rejoin Server",
+		Title = "Vào Lại Server",
 		Description = "",
 		Callback = function()
 			TeleportService:TeleportToPlaceInstance(game.placeId, game.jobId, game.Players.LocalPlayer);
 		end,
 	})
 	MiscPlayer:AddButton({
-		Title = "Hop Server",
+		Title = "Chuyển Server",
 		Description = "",
 		Callback = function()
 			AllFuncs.HopServer(true)
 		end
 	})
 	MiscPlayer:AddButton({
-		Title = "Hop Server Low",
+		Title = "Chuyển Server Ít Người",
 		Description = "",
 		Callback = function()
 			AllFuncs.HopServer(false)
 		end
 	})
 	MiscPlayer:AddButton({
-        Title = "Anti Lag ( Once )",
-        Description = "",
-        Callback = function()
-            for _, v in pairs(game:GetDescendants()) do
-                if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
-                    if v.Transparency ~= 1 then
-                        v.Material = Enum.Material.SmoothPlastic
-                    end
-                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v:Destroy()
-                end
-            end
-            Notify("Anti Lag Success")
-        end
-    })
-    MiscPlayer:AddButton({
-        Title = "Destroy All Particle",
-        Description = "",
-        Callback = function()
-            for _, v in pairs(game:GetDescendants()) do
-                if v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                    v:Destroy()
-                end
-            end
-            Notify("Success Destroy Particle")
-        end
-    })
+		Title = "Giảm Lag (Một Lần)",
+		Description = "",
+		Callback = function()
+			for _, v in pairs(game:GetDescendants()) do
+				if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
+					if v.Transparency ~= 1 then
+						v.Material = Enum.Material.SmoothPlastic
+					end
+				elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+					v:Destroy()
+				end
+			end
+			Notify("Giảm lag thành công")
+		end
+	})
+	MiscPlayer:AddButton({
+		Title = "Xóa Tất Cả Hiệu Ứng",
+		Description = "",
+		Callback = function()
+			for _, v in pairs(game:GetDescendants()) do
+				if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+					v:Destroy()
+				end
+			end
+			Notify("Xóa hiệu ứng thành công")
+		end
+	})
 end
 
-Shoppy = Tap.Shop:AddSection('Shop All') do
-	Toggle(Shoppy, "Teleport To Buy", "", "Teleport To Buy")
+Shoppy = Tap.Shop:AddSection('Cửa Hàng Tất Cả') do
+	Toggle(Shoppy, "Dịch Chuyển Để Mua", "", "Teleport To Buy")
 	for i,v in pairs(workspace.world.interactables:GetDescendants()) do
 		if v.Name == "purchaserompt" or v.ClassName == "ProximityPrompt" then
 			v.HoldDuration = 0
 			Shoppy:AddButton({
-				Title = "Buy "..v.Parent.Name,
+				Title = "Mua "..v.Parent.Name,
 				Description = v.ActionText,
 				Callback = function()
 					if fireproximityprompt and not Config['Teleport To Buy'] then
@@ -3887,7 +3897,7 @@ Shoppy = Tap.Shop:AddSection('Shop All') do
 						end)
 					else
 						if not fireproximityprompt then
-							Notify("Execute Not Support fireproximityprompt")
+							Notify("Trình chạy không hỗ trợ fireproximityprompt")
 						end
 						LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.Parent:GetPivot()
 					end
@@ -3897,8 +3907,8 @@ Shoppy = Tap.Shop:AddSection('Shop All') do
 	end
 end
 Shoppy:AddButton({
-    Title = "Buy Enchant Relic",
-    Description = "View [11,000C$]",
+    Title = "Mua Enchant Relic",
+    Description = "Xem [11,000C$]",
     Callback = function()
         local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -3922,15 +3932,15 @@ character:SetPrimaryPartCFrame(CFrame.new(previousPosition))
     end
 })
 
-WebHookConfigs = Tap.Configs:AddSection('WebHook') do
-	TextBox(WebHookConfigs, "WebHook","","discord.com/api/webhooks", false, "WebHook Configs")
-	TextBox(WebHookConfigs, "Discord Id","","1010021431075155979", false, "Discord Id Ping")
-	Slider(WebHookConfigs, "Delay Sending (Sec)", 10, 600, false, "Delay Sending")
-	Toggle(WebHookConfigs, "Sending WebHook","","Sending Webhook")
-	Toggle(WebHookConfigs, "Ping Discord Id","","Ping Discord Id")
+WebHookConfigs = Tap.Configs:AddSection('Cấu Hình Webhook') do
+	TextBox(WebHookConfigs, "Webhook URL","","discord.com/api/webhooks", false, "WebHook Configs")
+	TextBox(WebHookConfigs, "ID Discord Cần Ping","","1010021431075155979", false, "Discord Id Ping")
+	Slider(WebHookConfigs, "Thời Gian Chờ Gửi (Giây)", 10, 600, false, "Delay Sending")
+	Toggle(WebHookConfigs, "Bật Gửi Webhook","","Sending Webhook")
+	Toggle(WebHookConfigs, "Ping ID Discord","","Ping Discord Id")
 	
 	WebHookConfigs:AddButton({
-		Title = "Test WebHook",
+		Title = "Thử Nghiệm Webhook",
 		Description = "",
 		Callback = function()
 			local SendingSuccess = sendwebhook(Config['WebHook Configs'], {
@@ -3938,24 +3948,24 @@ WebHookConfigs = Tap.Configs:AddSection('WebHook') do
 				["embeds"] = {
 					{
 						["id"]= 661605297,
-						["title"]= "Fisch Notify",
-						["description"] = "** Player : "..LocalPlayer.Name.."\n THIS TESTING WEBHOOK**",
+						["title"]= "Thông Báo Fisch",
+						["description"] = "** Người chơi : "..LocalPlayer.Name.."\n ĐÂY LÀ WEBHOOK THỬ NGHIỆM**",
 						["color"]= 8646911,
 						["fields"]= {},
 						["thumbnail"]= {
 							["url"]= GetPlayerProfile()
 						},
 						["footer"]= {
-							["text"]  = "Normal Hub Notify",
+							["text"]  = "Thông Báo Khoa Dev",
 							["icon_url"] = "https://cdn.discordapp.com/attachments/971367335405449246/1259442279672844308/Profile_1.png?ex=66fbc206&is=66fa7086&hm=0b8898eb98938e100ad3cede12d0a526d344cd3ba7d4f737f728ca188a1af027&"
 						}
 					}
 				}
 			})
 			if SendingSuccess then
-				Notify("Sending WebHook Success", 1)
+				Notify("Gửi Webhook Thành Công", 1)
 			else
-				Notify("Failed Sending WebHook!", 1)
+				Notify("Gửi Webhook Thất Bại!", 1)
 			end
 		end,
 	})
@@ -4002,20 +4012,20 @@ function GetFishInInventory()
 end
 
 
-WebHookConfigsData = Tap.Configs:AddSection('Data Sending') do
-	Toggle(WebHookConfigsData, "Current Money","","Current Money")
-	Toggle(WebHookConfigsData, "Current Level","","Current Level")
-	Toggle(WebHookConfigsData, "All Fish Inventory","","All Fish Inventory")
-	Toggle(WebHookConfigsData, "Send Kilo Fish","","Send Kilo Fish")
-	Toggle(WebHookConfigsData, "Send Price Fish","","Send Price Fish")
-	Toggle(WebHookConfigsData, "Safe Whirlpool Spawn","","Safe Whirlpool Spawn")
-	Toggle(WebHookConfigsData, "Halloween Success","","Halloween Success")
+WebHookConfigsData = Tap.Configs:AddSection('Dữ Liệu Gửi') do
+	Toggle(WebHookConfigsData, "Tiền Hiện Tại","","Current Money")
+	Toggle(WebHookConfigsData, "Cấp Độ Hiện Tại","","Current Level")
+	Toggle(WebHookConfigsData, "Tất Cả Cá Trong Túi","","All Fish Inventory")
+	Toggle(WebHookConfigsData, "Gửi Cân Nặng Cá","","Send Kilo Fish")
+	Toggle(WebHookConfigsData, "Gửi Giá Trị Cá","","Send Price Fish")
+	Toggle(WebHookConfigsData, "Thông Báo Vòng Xoáy An Toàn","","Safe Whirlpool Spawn")
+	Toggle(WebHookConfigsData, "Thông Báo Thành Công Halloween","","Halloween Success")
 end
 
-Teleporting = Tap.Teleport:AddSection('Teleport') do
+Teleporting = Tap.Teleport:AddSection('Dịch Chuyển') do
 	-- Teleporting button for "Sunstone Island"
 Teleporting:AddButton({
-    Title = "Sunstone Island",
+    Title = "Đảo Sunstone",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-913.630615234375, 137.29348754882812, -1129.8995361328125)
     end
@@ -4023,7 +4033,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Roslit Bay"
 Teleporting:AddButton({
-    Title = "Roslit Bay",
+    Title = "Vịnh Roslit",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1501.675537109375, 133, 416.2070007324219)
     end
@@ -4031,7 +4041,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Random Islands"
 Teleporting:AddButton({
-    Title = "Random Islands",
+    Title = "Đảo Ngẫu Nhiên",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(237.6944580078125, 139.34976196289062, 43.103424072265625)
     end
@@ -4039,7 +4049,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Moosewood"
 Teleporting:AddButton({
-    Title = "Moosewood",
+    Title = "Đảo Moosewood",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(433.7972106933594, 147.07003784179688, 261.80218505859375)
     end
@@ -4047,7 +4057,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Executive Headquarters"
 Teleporting:AddButton({
-    Title = "Executive Headquarters",
+    Title = "Trụ Sở Điều Hành",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-36.46199035644531, -246.55001831054688, 205.77120971679688)
     end
@@ -4055,7 +4065,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Enchant Room"
 Teleporting:AddButton({
-    Title = "Enchant Room",
+    Title = "Phòng Enchant",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1310.048095703125, -805.292236328125, -162.34507751464844)
     end
@@ -4063,7 +4073,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Statue Of Sovereignty"
 Teleporting:AddButton({
-    Title = "Statue Of Sovereignty",
+    Title = "Tượng Sovereignty",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(22.098665237426758, 159.01470947265625, -1039.8543701171875)
     end
@@ -4071,7 +4081,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Mushgrove Swamp"
 Teleporting:AddButton({
-    Title = "Mushgrove Swamp",
+    Title = "Đầm Lầy Mushgrove",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(2442.805908203125, 130.904052734375, -686.1648559570312)
     end
@@ -4079,7 +4089,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Snowcap Island"
 Teleporting:AddButton({
-    Title = "Snowcap Island",
+    Title = "Đảo Tuyết Snowcap",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(2589.534912109375, 134.9249267578125, 2333.099365234375)
     end
@@ -4087,7 +4097,7 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Terrapin Island"
 Teleporting:AddButton({
-    Title = "Terrapin Island",
+    Title = "Đảo Rùa Terrapin",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(152.3716278076172, 154.91015625, 2000.9171142578125)
     end
@@ -4095,15 +4105,15 @@ Teleporting:AddButton({
 
 -- Teleporting button for "Terrapin Island"
 Teleporting:AddButton({
-    Title = "Enchant Relic",
+    Title = "Khu Vực Enchant Relic",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1309.2784423828125, -802.427001953125, -83.36397552490234)
     end
 })
 
--- Teleporting button for "Terrapin Island"
+-- Teleporting button for "Best Spot"
 Teleporting:AddButton({
-    Title = "Best Spot",
+    Title = "Điểm Câu Tốt Nhất",
     Callback = function()
     local forceFieldPart = Instance.new("Part") -- Create a new part
 forceFieldPart.Size = Vector3.new(10, 1, 10) -- Set the size of the part (10x1x10)
@@ -4166,16 +4176,16 @@ local Old = os.time()
 		end)
 	end)
 do
-	Settings_M = Tap.Settings:AddSection("Misc") do
+	Settings_M = Tap.Settings:AddSection("Khác") do
 		Timeing = Settings_M:AddParagraph({        
-			Title = "Timeing Server"
+			Title = "Thời Gian Trong Server"
 		})
-		Toggle(Settings_M, "Auto Loading Configs", "", "AutoLoadingConfigs", function(v)
+		Toggle(Settings_M, "Tự Động Tải Cấu Hình", "", "AutoLoadingConfigs", function(v)
 			writefile(tostring(LocalPlayer.UserId).."ALC.txt", tostring(v))
 		end)
 		Settings_M:AddButton({
-			Title = "Join Normal Hub Discord",
-			Description = "Click to join",
+			Title = "Tham Gia Discord Normal Hub",
+			Description = "Nhấn để tham gia",
 			Callback = function()
 
 			end,
@@ -4187,7 +4197,7 @@ do
 		local hours = tostring(math.floor(TimeSinceLastPlay / 3600))
 		local minutes = tostring(math.floor((TimeSinceLastPlay % 3600) / 60))
 		local seconds = tostring(TimeSinceLastPlay % 60)
-		Timeing:SetTitle("Server Joined "..hours.." H "..minutes.." M "..seconds.." S ")
+		Timeing:SetTitle("Đã Ở Trong Server: "..hours.." Giờ "..minutes.." Phút "..seconds.." Giây ")
 	end)
 
 
