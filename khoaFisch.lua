@@ -1,5 +1,5 @@
 -- leaked and backed up by 25ms! <3
-print"✅ Security verification passed. Loading NoxHub..."
+print"✅ Khoa Dev"
 local PreloadConstants = {
 	PlaceVersionSupport = 4000,
 	BypassVersion = "V3",
