@@ -1,3 +1,5 @@
+print(123)
+
 local Library = {}
 
 Library.__index = Library
