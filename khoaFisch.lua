@@ -1,5 +1,5 @@
 -- leaked and backed up by 25ms! <3
-print"✅ Khoa Dev"
+print"✅ Security verification passed. Loading NoxHub..."
 local PreloadConstants = {
 	PlaceVersionSupport = 4000,
 	BypassVersion = "V3",
@@ -600,10 +600,8 @@ local Success, Error = pcall(function()
 
 	local function WaitForTable(Root, InstancePath, Timeout)
 		local Instance = Root
-		local actualTimeout = Timeout or 5
 		for i, v in pairs(InstancePath) do
-			if not Instance then break end
-			Instance = Instance:WaitForChild(v, actualTimeout)
+			Instance = Instance:WaitForChild(v, Timeout)
 		end
 		return Instance
 	end
@@ -664,84 +662,58 @@ local Success, Error = pcall(function()
 		CheckSafeRange = 50,
 	}
 
-	local Remotes = {}
-	do
-		local reelFinishedEvent = ReplicatedStorage.events:WaitForChild("reelfinished", 5) or ReplicatedStorage.events:WaitForChild("reelfinished ", 5)
-		if not reelFinishedEvent then
-			warn("[NoxHub Warning] reelfinished event not found! Auto-reel features will be disabled.")
-			reelFinishedEvent = {
-				FireServer = function() dbgwarn("reelfinished remote not found, cannot FireServer") end
-			}
-		end
-		Remotes.ReelFinished = reelFinishedEvent
-
-		local sellAllEvent = ReplicatedStorage.events:WaitForChild("SellAll", 5)
-		if not sellAllEvent then
-			warn("[NoxHub Warning] SellAll event not found! Auto-sell features will be disabled.")
-			sellAllEvent = {
-				InvokeServer = function() dbgwarn("SellAll remote not found, cannot InvokeServer") end
-			}
-		end
-		Remotes.SellAll = sellAllEvent
-
-		Remotes.Power = EnsureStream(
+	local Remotes = {
+		ReelFinished = ReplicatedStorage.events:WaitForChild"reelfinished ",
+		SellAll = ReplicatedStorage.events:WaitForChild"SellAll",
+		Power = EnsureStream(
 			workspace,
 			{
-				"world",
-				"npcs",
-				"Merlin",
-				"Merlin",
-				"power"
-			},
+			"world",
+			"npcs",
+			"Merlin",
+			"Merlin",
+			"power"
+		},
 			Vector3.new(-930, 226, -993),
 			5
-		)
-
-		Remotes.Luck = EnsureStream(
+		),
+		Luck = EnsureStream(
 			workspace,
 			{
-				"world",
-				"npcs",
-				"Merlin",
-				"Merlin",
-				"luck"
-			},
+			"world",
+			"npcs",
+			"Merlin",
+			"Merlin",
+			"luck"
+		},
 			Vector3.new(-930, 226, -993),
 			5
-		)
-	end
+		),
+	}
 
-	local PlayerDataFolder = workspace:WaitForChild("PlayerStats", 5) 
-		and workspace.PlayerStats:WaitForChild(LocalPlayer.Name, 5) 
-		and workspace.PlayerStats[LocalPlayer.Name]:WaitForChild("T", 5)
-	
 	local Interface = {
-		FishRadar = ReplicatedStorage:WaitForChild("resources", 5) 
-			and ReplicatedStorage.resources:WaitForChild("items", 5) 
-			and ReplicatedStorage.resources.items:WaitForChild("items", 5) 
-			and ReplicatedStorage.resources.items.items:WaitForChild("Fish Radar", 5) 
-			and ReplicatedStorage.resources.items.items["Fish Radar"]:WaitForChild("Fish Radar", 5),
+		FishRadar = ReplicatedStorage.resources.items.items["Fish Radar"]["Fish Radar"],
 		TeleportSpots = WaitForTable(workspace, {
 			"world",
 			"spawns",
 			"TpSpots"
-		}, 5),
+		}),
 		Inventory = WaitForTable(LocalPlayer.PlayerGui, {
 			"hud",
 			"safezone",
 			"backpack"
-		}, 5),
-		MeteorItems = workspace:WaitForChild("active", 5) and workspace.active:WaitForChild("meteorItems", 5),
-		PlayerData = PlayerDataFolder and PlayerDataFolder:GetChildren()[1],
-		NPCs = workspace:WaitForChild("world", 5) and workspace.world:WaitForChild("npcs", 5),
+		}),
+		MeteorItems = workspace:WaitForChild"active":WaitForChild"meteorItems",
+		PlayerData = workspace:WaitForChild"PlayerStats":WaitForChild(LocalPlayer.Name):WaitForChild"T":GetChildren()[1],
+		NPCs = workspace:WaitForChild"world":WaitForChild"npcs",
 		BoatModels = WaitForTable(ReplicatedStorage, {
 			"resources",
 			"replicated",
 			"instances",
 			"vessels"
-		}, 5),
-		Active = workspace:WaitForChild("active", 5),
-		ActiveBoats = workspace:WaitForChild("active", 5) and workspace.active:WaitForChild("boats", 5),
+		}),
+		Active = workspace:WaitForChild"active",
+		ActiveBoats = workspace:WaitForChild"active":WaitForChild"boats",
 	}
 
 	local Collection = {}
@@ -750,317 +722,18 @@ local Success, Error = pcall(function()
 		table.insert(Collection, Item)
 	end
 
-	local WindUI
-	local success, err = pcall(function()
-		return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-	end)
-	if success and err then
-		WindUI = err
-	else
-		warn("WindUI Load Error: " .. tostring(err))
-		error("Failed to load WindUI library.")
-	end
+	local Repository = "https://raw.githubusercontent.com/mstudio45/LinoriaLib/refs/heads/main/"
+	local Library = loadstring(game:HttpGet(Repository .. "Library.lua"))()
+	local ThemeManager = loadstring(game:HttpGet(Repository .. "addons/ThemeManager.lua"))()
+	local SaveManager = loadstring(game:HttpGet(Repository .. "addons/SaveManager.lua"))()
 	local VelocityFly =
 		loadstring(game:HttpGet"https://raw.githubusercontent.com/centerepic/VelocityFly/main/VelocityFly.lua")()
 
 	local UI = {
-		Options = {},
-		Toggles = {},
+		Library = Library,
+		Options = getgenv().Options,
+		Toggles = getgenv().Toggles,
 	}
-	getgenv().Options = UI.Options
-	getgenv().Toggles = UI.Toggles
-
-	local function CreateToggle(parentSection, flag, config)
-		local originalCallback = config.Callback
-		local toggleElement
-		
-		config.Callback = function(val)
-			if UI.Toggles[flag] then
-				UI.Toggles[flag].Value = val
-			end
-			if originalCallback then
-				originalCallback(val)
-			end
-		end
-		
-		toggleElement = parentSection:Toggle({
-			Flag = flag,
-			Title = config.Text or config.Title,
-			Desc = config.Tooltip or config.Desc,
-			Value = config.Default or false,
-			Callback = config.Callback
-		})
-		
-		local wrapper = {
-			Value = config.Default or false,
-			Element = toggleElement,
-		}
-		function wrapper:SetValue(val)
-			self.Value = val
-			self.Element:Set(val)
-		end
-		function wrapper:OnChanged(callback)
-			-- Chaining callback if needed
-		end
-		UI.Toggles[flag] = wrapper
-		return wrapper
-	end
-
-	local function CreateSlider(parentSection, flag, config)
-		local originalCallback = config.Callback
-		local sliderElement
-		
-		config.Callback = function(val)
-			if UI.Options[flag] then
-				UI.Options[flag].Value = val
-			end
-			if originalCallback then
-				originalCallback(val)
-			end
-		end
-		
-		sliderElement = parentSection:Slider({
-			Flag = flag,
-			Title = config.Text or config.Title,
-			Desc = config.Tooltip or config.Desc,
-			Value = {
-				Min = config.Min,
-				Max = config.Max,
-				Default = config.Default,
-			},
-			Step = (config.Rounding == 0 and 1) or config.Step or 1,
-			Callback = config.Callback
-		})
-		
-		local wrapper = {
-			Value = config.Default,
-			Element = sliderElement,
-		}
-		function wrapper:SetValue(val)
-			self.Value = val
-			self.Element:Set(val)
-		end
-		UI.Options[flag] = wrapper
-		return wrapper
-	end
-
-	local function CreateDropdown(parentSection, flag, config)
-		local originalCallback = config.Callback
-		local dropdownElement
-		
-		config.Callback = function(val)
-			if UI.Options[flag] then
-				UI.Options[flag].Value = val
-			end
-			if originalCallback then
-				originalCallback(val)
-			end
-		end
-		
-		dropdownElement = parentSection:Dropdown({
-			Flag = flag,
-			Title = config.Text or config.Title,
-			Desc = config.Tooltip or config.Desc,
-			Values = config.Values,
-			Value = config.Default,
-			Multi = config.Multi or false,
-			Callback = config.Callback
-		})
-		
-		local wrapper = {
-			Value = config.Default,
-			Element = dropdownElement,
-		}
-		function wrapper:SetValue(val)
-			self.Value = val
-			if type(val) == "table" then
-				self.Element:Select(val)
-			else
-				self.Element:Select({ val })
-			end
-		end
-		function wrapper:SetValues(newValues)
-			self.Element:Refresh(newValues)
-		end
-		UI.Options[flag] = wrapper
-		return wrapper
-	end
-
-	local function CreateKeybind(parentSection, flag, config)
-		local keybindElement
-		local keybindData = {
-			Key = Enum.KeyCode[config.Default] or config.Default,
-			State = false,
-			Callback = config.Callback,
-			Mode = config.Mode or "Toggle"
-		}
-		
-		keybindElement = parentSection:Keybind({
-			Flag = flag,
-			Title = config.Text or config.Title or "Keybind",
-			Desc = config.Tooltip or config.Desc,
-			Value = typeof(config.Default) == "string" and config.Default or tostring(config.Default):gsub("Enum.KeyCode.", ""),
-			Callback = function(v)
-				keybindData.Key = Enum.KeyCode[v]
-			end
-		})
-		
-		local wrapper = {
-			Value = keybindData.Key,
-			Element = keybindElement,
-		}
-		function wrapper:SetValue(val)
-			self.Value = val
-			local keyStr = tostring(val):gsub("Enum.KeyCode.", "")
-			self.Element:Set(keyStr)
-			keybindData.Key = val
-		end
-		
-		UI.Options[flag] = wrapper
-		
-		local connection = UserInputService.InputBegan:Connect(function(input, processed)
-			if processed then return end
-			if input.KeyCode == keybindData.Key then
-				if keybindData.Mode == "Toggle" then
-					keybindData.State = not keybindData.State
-					if keybindData.Callback then
-						task.spawn(keybindData.Callback, keybindData.State)
-					end
-				else
-					if keybindData.Callback then
-						task.spawn(keybindData.Callback)
-					end
-				end
-			end
-		end)
-		
-		Collect(connection)
-		return wrapper
-	end
-
-	local GroupboxWrapper = {}
-	GroupboxWrapper.__index = GroupboxWrapper
-
-	function GroupboxWrapper.new(windUISection)
-		local self = setmetatable({}, GroupboxWrapper)
-		self.Element = windUISection
-		return self
-	end
-
-	function GroupboxWrapper:AddToggle(flag, config)
-		return CreateToggle(self.Element, flag, config)
-	end
-
-	function GroupboxWrapper:AddSlider(flag, config)
-		return CreateSlider(self.Element, flag, config)
-	end
-
-	function GroupboxWrapper:AddDropdown(flag, config)
-		return CreateDropdown(self.Element, flag, config)
-	end
-
-	function GroupboxWrapper:AddButton(arg1, arg2)
-		local title, callback
-		if type(arg1) == "table" then
-			title = arg1.Text or arg1.Title
-			callback = arg1.Func or arg1.Callback
-		else
-			title = arg1
-			callback = arg2
-		end
-		
-		return self.Element:Button({
-			Title = title,
-			Justify = "Center",
-			Callback = callback
-		})
-	end
-
-	function GroupboxWrapper:AddLabel(text, multiline)
-		local proxy = {
-			IsLabel = true,
-			Text = text,
-			Multiline = multiline,
-			Parent = self.Element,
-		}
-		
-		local keyPickerCalled = false
-		
-		task.defer(function()
-			if not keyPickerCalled then
-				proxy.Element = proxy.Parent:Paragraph({
-					Title = text,
-					Desc = ""
-				})
-			end
-		end)
-		
-		function proxy:AddKeyPicker(flag, config)
-			keyPickerCalled = true
-			return CreateKeybind(proxy.Parent, flag, {
-				Title = text,
-				Default = config.Default,
-				Mode = config.Mode,
-				Callback = config.Callback
-			})
-		end
-		
-		return proxy
-	end
-
-	local TabWrapper = {}
-	TabWrapper.__index = TabWrapper
-
-	function TabWrapper.new(windUITab)
-		local self = setmetatable({}, TabWrapper)
-		self.Element = windUITab
-		return self
-	end
-
-	function TabWrapper:AddLeftGroupbox(name)
-		local windUISection = self.Element:Section({
-			Title = name,
-			Box = true,
-			BoxBorder = true,
-			Opened = true
-		})
-		return GroupboxWrapper.new(windUISection)
-	end
-
-	function TabWrapper:AddRightGroupbox(name)
-		return self:AddLeftGroupbox(name)
-	end
-
-	local WindowWrapper = {}
-	WindowWrapper.__index = WindowWrapper
-
-	function WindowWrapper.new(windUIWindow)
-		local self = setmetatable({}, WindowWrapper)
-		self.Element = windUIWindow
-		return self
-	end
-
-	function WindowWrapper:AddTab(name)
-		local icon = "solar:info-square-bold"
-		if name == "Main" then
-			icon = "solar:home-2-bold"
-		elseif name == "Teleports" then
-			icon = "solar:compass-bold"
-		elseif name == "Autos" then
-			icon = "solar:settings-bold"
-		elseif name == "Misc" then
-			icon = "solar:info-square-bold"
-		elseif name == "UI Settings" then
-			icon = "solar:settings-minimalistic-bold"
-		end
-		
-		local windUITab = self.Element:Tab({
-			Title = name,
-			Icon = icon
-		})
-		
-		return TabWrapper.new(windUITab)
-	end
 
 	local function GetToggleValue(Name)
 		local Toggle = UI.Toggles[Name]
@@ -1409,33 +1082,11 @@ local Success, Error = pcall(function()
 	end
 
 
-	local WindUIWindow = WindUI:CreateWindow({
+	local Window = Library:CreateWindow{
 		Title = "NoxHub - Fisch",
-		Folder = "NoxHub",
-		Icon = "solar:folder-2-bold-duotone",
-		NewElements = true,
-		HideSearchBar = false,
-		OpenButton = {
-			Title = "NoxHub",
-			CornerRadius = UDim.new(1, 0),
-			StrokeThickness = 3,
-			Enabled = true,
-			Draggable = true,
-			OnlyMobile = false,
-			Scale = 0.5,
-			Color = ColorSequence.new(
-				Color3.fromHex("#30FF6A"),
-				Color3.fromHex("#e7ff2f")
-			),
-		},
-		Topbar = {
-			Height = 44,
-			ButtonsType = "Mac",
-		},
-	})
-
-	local Window = WindowWrapper.new(WindUIWindow)
-
+		Center = true,
+		AutoShow = true,
+	}
 	local Tabs = {
 		Main = Window:AddTab"Main",
 		Teleports = Window:AddTab"Teleports",
@@ -1449,120 +1100,25 @@ local Success, Error = pcall(function()
 -- ####################### ---
 	local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox'Menu'
 	MenuGroup:AddButton('Unload', function()
-		Unloaded = true
-		OnUnload:Fire()
-		for _, Connection in ipairs(Collection) do
-			if typeof(Connection) == "RBXScriptConnection" then
-				Connection:Disconnect()
-			elseif typeof(Connection) == "thread" then
-				pcall(coroutine.close, Connection)
-			end
-		end
-		WindUIWindow:Destroy()
+		Library:Unload()
 	end)
-	
 	MenuGroup:AddLabel'Menu bind':AddKeyPicker('MenuKeybind', {
 		Default = 'End',
 		NoUI = true,
-		Text = 'Menu keybind',
-		Callback = function(v)
-			WindUIWindow:SetToggleKey(Enum.KeyCode[v])
-		end
+		Text = 'Menu keybind'
 	})
-
-	WindUIWindow:SetToggleKey(Enum.KeyCode.End)
-
-	UI.Library = {
-		Unload = function()
-			Unloaded = true
-			OnUnload:Fire()
-			for _, Connection in ipairs(Collection) do
-				if typeof(Connection) == "RBXScriptConnection" then
-					Connection:Disconnect()
-				elseif typeof(Connection) == "thread" then
-					pcall(coroutine.close, Connection)
-				end
-			end
-			WindUIWindow:Destroy()
-		end,
-		Toggle = function()
-			local mainFrame = WindUIWindow:GetMainFrame()
-			if mainFrame then
-				mainFrame.Visible = not mainFrame.Visible
-			end
-		end
+	Library.ToggleKeybind = Options.MenuKeybind
+	ThemeManager:SetLibrary(Library)
+	SaveManager:SetLibrary(Library)
+	SaveManager:IgnoreThemeSettings()
+	SaveManager:SetIgnoreIndexes{
+		'MenuKeybind'
 	}
-	local Library = UI.Library
-
-	local ConfigGroupBox = Tabs['UI Settings'].Element:Section({
-		Title = "Configs Manager",
-		Box = true,
-		BoxBorder = true,
-		Opened = true
-	})
-
-	local ConfigManager = WindUIWindow.ConfigManager
-	local ConfigName = "default"
-
-	local ConfigNameInput = ConfigGroupBox:Input({
-		Title = "Config Name",
-		Icon = "file-cog",
-		Placeholder = "default",
-		Callback = function(value)
-			ConfigName = value
-		end,
-	})
-
-	ConfigGroupBox:Space()
-
-	local AllConfigs = ConfigManager:AllConfigs()
-	local DefaultValue = table.find(AllConfigs, ConfigName) and ConfigName or nil
-
-	local AllConfigsDropdown = ConfigGroupBox:Dropdown({
-		Title = "All Configs",
-		Desc = "Select existing configs",
-		Values = AllConfigs,
-		Value = DefaultValue,
-		Callback = function(value)
-			ConfigName = value
-			ConfigNameInput:Set(value)
-		end,
-	})
-
-	ConfigGroupBox:Space()
-
-	ConfigGroupBox:Button({
-		Title = "Save Config",
-		Justify = "Center",
-		Callback = function()
-			WindUIWindow.CurrentConfig = ConfigManager:Config(ConfigName)
-			if WindUIWindow.CurrentConfig:Save() then
-				WindUI:Notify({
-					Title = "Config Saved",
-					Content = "Config '" .. ConfigName .. "' saved successfully!",
-					Icon = "check",
-				})
-			end
-			AllConfigsDropdown:Refresh(ConfigManager:AllConfigs())
-		end,
-	})
-
-	ConfigGroupBox:Space()
-
-	ConfigGroupBox:Button({
-		Title = "Load Config",
-		Justify = "Center",
-		Callback = function()
-			WindUIWindow.CurrentConfig = ConfigManager:CreateConfig(ConfigName)
-			if WindUIWindow.CurrentConfig:Load() then
-				WindUI:Notify({
-					Title = "Config Loaded",
-					Content = "Config '" .. ConfigName .. "' loaded successfully!",
-					Icon = "refresh-cw",
-				})
-			end
-		end,
-	})
+	ThemeManager:SetFolder'NoxHub'
+	SaveManager:SetFolder'NoxHub/Arise'
+	SaveManager:BuildConfigSection(Tabs['UI Settings'])
+	ThemeManager:ApplyToTab(Tabs['UI Settings'])
+	SaveManager:LoadAutoloadConfig()
 	local CastingGroup = Tabs.Autos:AddLeftGroupbox"Casting"
 	local ReelingGroup = Tabs.Autos:AddLeftGroupbox"Reeling"
 	local OtherGroup   = Tabs.Autos:AddLeftGroupbox"Shake"
@@ -3120,14 +2676,7 @@ and Values.bite.Value == true
 		Utils.CharacterAdded(LocalPlayer.Character)
 	end
 
-	pcall(function()
-		WindUIWindow.CurrentConfig = ConfigManager:CreateConfig("default")
-		WindUIWindow.CurrentConfig:Load()
-	end)
+	SaveManager:LoadAutoloadConfig()
 	PreAutoloadConfig = false
 
 end)
-
-if not Success then
-	warn("NoxHub Load Error: " .. tostring(Error))
-end
